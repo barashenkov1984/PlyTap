@@ -968,22 +968,38 @@
                     <table class="w-full border-collapse text-xs" id="masterAccumulatedTable"></table>
                 </div>
 
-                <!-- ЖУРНАЛ ЗАВЕРШЕННЫХ ЦИКЛОВ ТЕКУЩЕЙ СМЕНЫ (С ВОЗМОЖНОСТЬЮ РЕДАКТИРОВАНИЯ И ВОЗВРАТА В ДОРАБОТКУ) -->
-                <div class="mt-4 bg-slate-950 border border-slate-800 rounded-2xl p-4">
-                    <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3 mb-3">
-                        <div class="flex items-center gap-2">
-                            <i class="ph-duotone ph-list-numbers text-amber-400 text-xl"></i>
-                            <div>
-                                <h3 class="text-sm sm:text-base font-extrabold text-white">Журнал отдельных циклов текущей смены</h3>
-                                <p class="text-xs text-slate-400">Вы можете изменить листы/сорт любого цикла, отдельно изменить рубашку/ТУ, вернуть цикл на Панель 3 для доработки или удалить ошибочный цикл</p>
-                            </div>
-                        </div>
-                        <span id="journalCyclesCountBadge" class="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-amber-400 font-extrabold text-xs mono">
-                            0 циклов
-                        </span>
-                    </div>
-                    <div id="cyclesJournalList" class="space-y-2"></div>
-                </div>
+                <!-- ЖУРНАЛ ЗАВЕРШЕННЫХ ЦИКЛОВ ТЕКУЩЕЙ СМЕНЫ -->
+<details open class="group mt-4 bg-slate-950 border border-slate-800 rounded-2xl p-4">
+    <summary class="flex flex-wrap items-center justify-between gap-2 cursor-pointer list-none [&::-webkit-details-marker]:hidden group-open:border-b group-open:border-slate-800 group-open:pb-3 group-open:mb-3">
+
+        <span class="flex items-center gap-2">
+            <i class="ph-duotone ph-list-numbers text-amber-400 text-xl"></i>
+            <span>
+                <span class="block text-sm sm:text-base font-extrabold text-white">
+                    Журнал отдельных циклов текущей смены
+                </span>
+                <span class="hidden group-open:block text-xs text-slate-400">
+                    Вы можете изменить листы/сорт любого цикла, отдельно изменить рубашку/ТУ, вернуть цикл на Панель 3 для доработки или удалить ошибочный цикл
+                </span>
+            </span>
+        </span>
+
+        <span class="flex flex-wrap items-center gap-2">
+            <span id="journalCyclesCountBadge" class="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-amber-400 font-extrabold text-xs mono">
+                0 циклов
+            </span>
+
+            <span class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold flex items-center gap-1.5 transition">
+                <span class="group-open:hidden">Развернуть</span>
+                <span class="hidden group-open:inline">Свернуть</span>
+                <i class="ph-bold ph-caret-down group-open:rotate-180 transition-transform"></i>
+            </span>
+        </span>
+
+    </summary>
+
+    <div id="cyclesJournalList" class="space-y-2"></div>
+</details>
 <!-- ЖИВЫЕ ГРАФИКИ ТЕКУЩЕЙ СМЕНЫ (АВТООБНОВЛЕНИЕ ПОСЛЕ КАЖДОГО ЦИКЛА) -->
                 <div id="liveShiftChartsSection" class="mt-4 bg-slate-950 border border-slate-800 rounded-2xl p-4">
                     <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3 mb-3">

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'plytap-app-v1';
+const CACHE_NAME = 'plytap-app-v2';
 const APP_SHELL = [
   './',
   './index.html',
