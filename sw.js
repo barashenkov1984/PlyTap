@@ -1,8 +1,9 @@
-const CACHE_NAME = 'plytap-app-v2';
+const CACHE_NAME = 'plytap-app-v3';
 const APP_SHELL = [
   './',
   './index.html',
   './manifest.json',
+  './plytap-settings.js',
   './plytap-db.js',
   './plytap-charts.js',
   './plytap-pdf-report.js',
@@ -22,7 +23,7 @@ self.addEventListener('install', (event) => {
     caches.open(CACHE_NAME).then((cache) => {
       return Promise.all(
         APP_SHELL.map((url) => {
-          return cache.add(url).catch((err) => {
+          return cache.add(new Request(url, { cache: 'reload' })).catch((err) => {
             console.warn('Не удалось загрузить в кэш:', url, err);
           });
         })

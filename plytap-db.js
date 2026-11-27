@@ -108,7 +108,8 @@ async function exportFullDatabaseJSON() {
 
         const backupPayload = {
             app: 'PlyTap',
-            schemaVersion: 2,
+            schemaVersion: 3,
+            settings: getPlytapSettings(),
             exportedAt: new Date().toISOString(),
             operators: authorizedOperators || [],
             activeState: appState || {},
@@ -156,7 +157,11 @@ function handleImportDatabaseJSON(event) {
                 showToast('Выбранный файл не является резервной копией PlyTap!', 'amber');
                 return;
             }
-
+            
+            // Проверяем настройки до восстановления базы
+const importedSettings = parsed.settings === undefined
+    ? null
+    : validatePlytapSettings(parsed.settings);
             // Восстанавливаем операторов
             if (Array.isArray(parsed.operators)) {
                 parsed.operators.forEach(op => {
@@ -181,11 +186,13 @@ function handleImportDatabaseJSON(event) {
                 if (m && m.monthKey) await idbPut(IDB_STORE_MONTHLY_REPORTS, m);
             }
 
+            if (importedSettings) savePlytapSettings(importedSettings);
             saveToStorage();
             await loadFilesFromIndexedDB();
             await loadAnalyticsReportsFromDB();
             if (typeof renderSavedFilesList === 'function') renderSavedFilesList();
-            if (typeof refreshWorkspaceUI === 'function') refreshWorkspaceUI();
+            if (importedSettings) refreshPlytapSettingsViews();
+            else if (typeof refreshWorkspaceUI === 'function') refreshWorkspaceUI();
 
             showToast(
                 `База восстановлена! Файлов: ${filesArr.length}, отчетов смен: ${shiftsArr.length}, месяцев: ${monthsArr.length}`,

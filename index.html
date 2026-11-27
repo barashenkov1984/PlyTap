@@ -241,7 +241,7 @@
             </div>
 
             <!-- 3 Main Navigation Tabs -->
-            <nav class="w-full lg:w-auto grid grid-cols-3 gap-1.5 bg-slate-950 p-1 rounded-xl border border-slate-800">
+            <nav class="w-full lg:w-auto grid grid-cols-2 sm:grid-cols-4 gap-1.5 bg-slate-950 p-1 rounded-xl border border-slate-800">
                 <button type="button" onclick="switchTab('tab-tally')" id="btn-tab-tally" class="tab-nav-btn flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all bg-amber-500 text-slate-950 shadow">
                     <i class="ph-bold ph-play-circle text-base sm:text-lg"></i>
                     <span>1. Начать смену</span>
@@ -255,6 +255,10 @@
                     <i class="ph-bold ph-microsoft-excel-logo text-base sm:text-lg"></i>
                     <span>3. Сводная таблица</span>
                 </button>
+        <button type="button" onclick="switchTab('tab-settings')" id="btn-tab-settings" class="tab-nav-btn flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all text-slate-300 hover:text-white hover:bg-slate-800/60">
+      <i class="ph-bold ph-gear-six text-base sm:text-lg"></i>
+    <span>4. Настройки</span>
+ </button>
             </nav>
         </div>
     </header>
@@ -1040,7 +1044,8 @@
                 </div>
             </div>
         </section>
-
+      <!-- TAB 4: НАСТРОЙКИ СПРАВОЧНИКОВ -->
+     <section id="tab-settings" class="hidden flex-none w-full flex-col gap-4"></section>
     </main>
 
     <!-- BOTTOM ACTION BAR ("ЗАКОНЧИТЬ" & "СФОРМИРОВАТЬ ФАЙЛ" - SHOWN ON PANEL 3) -->
@@ -1313,7 +1318,7 @@
                 </button>
             </div>
 
-            <div id="sortModalOptionsGrid" class="grid grid-cols-2 gap-2.5 mb-4"></div>
+            <div id="sortModalOptionsGrid" class="grid grid-cols-2 gap-2.5 mb-4 max-h-[45dvh] overflow-y-auto"></div>
 
             <!-- Строка для ручного ввода нестандартного сорта -->
             <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 mb-4">
@@ -2441,7 +2446,7 @@
             if (typeof stopVoiceRecognition === 'function' && screenId !== 'screen-3') {
                 stopVoiceRecognition(false);
             }
-            const screens = ['screen-0', 'screen-1', 'screen-2', 'screen-3', 'tab-files', 'tab-preview'];
+            const screens = ['screen-0', 'screen-1', 'screen-2', 'screen-3', 'tab-files', 'tab-preview', 'tab-settings'];
             screens.forEach(id => {
                 const el = document.getElementById(id);
                 if (el) {
@@ -2500,7 +2505,9 @@
                 btnFiles.className = (screenId === 'tab-files') ? activeClass : inactiveClass;
                 btnPreview.className = (screenId === 'tab-preview') ? activeClass : inactiveClass;
             }
-
+            const btnSettings = document.getElementById('btn-tab-settings');
+            if (btnSettings) btnSettings.className = screenId === 'tab-settings' ? activeClass : inactiveClass;
+            if (screenId === 'tab-settings') renderPlytapSettings();
             if (screenId === 'tab-files') renderSavedFilesList();
             if (screenId === 'tab-preview') renderMasterAccumulatedTable();
             refreshWorkspaceUI();
@@ -3734,36 +3741,26 @@ if (cell) {
         // 8. EXCEL (.XLSX) GENERATION MATCHING TEMPLATE 1:1
         // =========================================================================
         function getDefectCellFillColorHex(val) {
-            const n = Number(val) || 0;
-            if (n >= 1 && n <= 5) return 'FFC6EFCE';
-            if (n >= 6 && n <= 10) return 'FFFFEB9C';
-            if (n >= 11 && n <= 20) return 'FFFFC7CE';
-            if (n >= 21) return 'FFFF4D4D';
-            return null;
+            const colors = ['FFC6EFCE', 'FFFFEB9C', 'FFFFC7CE', 'FFFF4D4D'];
+            return colors[getPlytapCountBand(val)] || null;
         }
 
         function getDefectPreviewBgClass(val) {
-            const n = Number(val) || 0;
-            if (n >= 1 && n <= 5) return 'bg-[#C6EFCE] text-black';
-            if (n >= 6 && n <= 10) return 'bg-[#FFEB9C] text-black';
-            if (n >= 11 && n <= 20) return 'bg-[#FFC7CE] text-black';
-            if (n >= 21) return 'bg-[#FF4D4D] text-black';
-            return 'text-black';
+            const colors = [
+                 'bg-[#C6EFCE] text-black',
+                 'bg-[#FFEB9C] text-black',
+                 'bg-[#FFC7CE] text-black',
+                 'bg-[#FF4D4D] text-black'
+            ];
+            return colors[getPlytapCountBand(val)] || 'text-black';
         }
 
-        // Правило цвета цифр для строк "%": 0–4,9% цвет не меняем, 5–9,9% розовый, >=10% красный
         function getPctRowFontColorHex(pctVal, defaultColorArgb = 'FF000000') {
-            const rounded = Math.round((Number(pctVal) || 0) * 10) / 10;
-            if (rounded >= 5.0 && rounded <= 9.9) return 'FFFF6699';
-            if (rounded >= 10.0) return 'FFFF0000';
-            return defaultColorArgb;
+            return [defaultColorArgb, 'FFFF6699', 'FFFF0000'][getPlytapPercentBand(pctVal)];
         }
 
         function getPctRowPreviewTextColorClass(pctVal, defaultColorClass = 'text-black') {
-            const rounded = Math.round((Number(pctVal) || 0) * 10) / 10;
-            if (rounded >= 5.0 && rounded <= 9.9) return 'text-[#FF6699]';
-            if (rounded >= 10.0) return 'text-[#FF0000]';
-            return defaultColorClass;
+            return [defaultColorClass, 'text-[#FF6699]', 'text-[#FF0000]'][getPlytapPercentBand(pctVal)];
         }
 
         function pixelsToExcelWidth(px) {
@@ -3953,13 +3950,7 @@ if (cell) {
                     }
 
                     // --- ДОБАВЛЯЕМ УСЛОВНОЕ ФОРМАТИРОВАНИЕ ДЛЯ ДЕФЕКТОВ (ДЛЯ EXCEL) ---
-                    const createDefectCFRules = () => [
-                        { type: 'cellIs', operator: 'between', formulae: [1, 5], style: { fill: { type: 'pattern', pattern: 'solid', bgColor: { argb: 'FFC6EFCE' } } } },
-                        { type: 'cellIs', operator: 'between', formulae: [6, 10], style: { fill: { type: 'pattern', pattern: 'solid', bgColor: { argb: 'FFFFEB9C' } } } },
-                        { type: 'cellIs', operator: 'between', formulae: [11, 20], style: { fill: { type: 'pattern', pattern: 'solid', bgColor: { argb: 'FFFFC7CE' } } } },
-                        { type: 'cellIs', operator: 'greaterThanOrEqual', formulae: [21], style: { fill: { type: 'pattern', pattern: 'solid', bgColor: { argb: 'FFFF4D4D' } } } }
-                    ];
-
+                    const createDefectCFRules = getPlytapDefectCFRules;
                     // Применяем правила к рабочим диапазонам: столбцы C-N (Тех.брак) и P-Y (Пороки)
                     ws.addConditionalFormatting({ ref: `C${firstDataRow}:N${lastDataRow}`, rules: createDefectCFRules() });
                     ws.addConditionalFormatting({ ref: `P${firstDataRow}:Y${lastDataRow}`, rules: createDefectCFRules() });
@@ -4057,27 +4048,10 @@ if (cell) {
                         cell.alignment = { vertical: 'middle', horizontal: 'center' };
                     });
 
-                    // Условное форматирование Excel для изменения цвета цифр в строке % при пересчете формул
+                    // Условное форматирование Excel для изменения цвета цифр в строке %
                     ws.addConditionalFormatting({
-                        ref: `C${pctRowIdx}:Z${pctRowIdx}`,
-                        rules: [
-                            {
-                                type: 'cellIs',
-                                operator: 'between',
-                                formulae: [4.95, 9.949999],
-                                style: {
-                                    font: { bold: true, italic: true, color: { argb: 'FFFF6699' } }
-                                }
-                            },
-                            {
-                                type: 'cellIs',
-                                operator: 'greaterThanOrEqual',
-                                formulae: [9.95],
-                                style: {
-                                    font: { bold: true, italic: true, color: { argb: 'FFFF0000' } }
-                                }
-                            }
-                        ]
+                     ref: `C${pctRowIdx}:Z${pctRowIdx}`,
+                     rules: getPlytapPercentCFRules(pctRowIdx)
                     });
 
                     currentRowIdx++;
@@ -5379,7 +5353,10 @@ function handleStartShiftFromMenu() {
             }
 
             // 2. Переименованные в текущем цикле дефекты (удержание шапки столбца 2 сек.)
-            const customTitles = (appState.currentRow ? appState.currentRow.customTitles : null) || {};
+            const customTitles = {
+    ...getPlytapRenamedDefects(),
+    ...(appState.currentRow?.customTitles || {})
+};
             const customEntries = Object.entries(customTitles)
                 .map(([key, title]) => ({ key, normTitle: normalizeVoicePhrase(title) }))
                 .filter(e => e.normTitle.length > 0)
@@ -5641,8 +5618,9 @@ function handleStartShiftFromMenu() {
                 showToast('Приложение PlyTap установлено на планшет!', 'emerald');
             }
         });
-        window.onload = async function() {
-            loadFromStorage();
+            window.onload = async function() {
+         loadPlytapSettings();
+    loadFromStorage();
             initExcelWorkspaceTable();
             initErgonomicButtonGrids();
             updateNetworkStatusUI();
@@ -5653,6 +5631,7 @@ function handleStartShiftFromMenu() {
             goToScreen('screen-1');
         };
     </script>
+    <script src="plytap-settings.js"></script>
     <script src="plytap-db.js"></script>
     <script src="plytap-charts.js"></script>
     <script src="plytap-pdf-report.js"></script>
